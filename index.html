@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Calculator</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc, #e0f2fe);
+            min-height: 100vh;
+            color: #172033;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1100px;
+            margin: auto;
+            padding: 25px 0;
+        }
+
+        /* HEADER */
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #2563eb);
+            color: white;
+            padding: 30px;
+            border-radius: 22px;
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.25);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 15px;
+        }
+
+        /* GRID */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 22px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h2 {
+            font-size: 19px;
+            margin-bottom: 18px;
+        }
+
+        /* INPUTS */
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .input-box label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #475569;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 11px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .input-box input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px #e0e7ff;
+        }
+
+        /* BUTTONS */
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        button {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 11px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .calculate {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .present {
+            background: #16a34a;
+            color: white;
+        }
+
+        .absent {
+            background: #dc2626;
+            color: white;
+        }
+
+        .undo {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .reset {
+            background: #0f172a;
+            color: white;
+        }
+
+        /* STATISTICS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 7px 20px rgba(15, 23, 42, 0.07);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-title {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 25px;
+            font-weight: bold;
+            margin-top: 8px;
+            color: #1e293b;
+        }
+
+        /* PROGRESS */
+
+        .progress-card {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 18px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            transition: 0.4s;
+        }
+
+        .percentage {
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        /* STATUS */
+
+        .status {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status.good {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.bad {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* TARGET */
+
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .target-box {
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .target-box span {
+            display: block;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .target-box strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 22px;
+        }
+
+        /* TABLE */
+
+        .history-card {
+            margin-top: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .present-text {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .absent-text {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            color: #94a3b8;
+            padding: 25px;
+        }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            padding: 25px 0;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 800px) {
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .target-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 550px) {
+
+            .container {
+                width: 92%;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .target-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .buttons button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="header">
+        <h1>📊 Attendance Calculator</h1>
+        <p>
+            Track your academic attendance and maintain the required
+            60% attendance easily.
+        </p>
+    </div>
+
+
+    <!-- SETTINGS + DAILY UPDATE -->
+
+    <div class="grid">
+
+        <div class="card">
+
+            <h2>⚙️ Attendance Setup</h2>
+
+            <div class="input-grid">
+
+                <div class="input-box">
+                    <label>Total Academic Lectures</label>
+                    <input
+                        type="number"
+                        id="totalLectures"
+                        value="221"
+                        min="1">
+                </div>
+
+                <div class="input-box">
+                    <label>Required Attendance (%)</label>
+                    <input
+                        type="number"
+                        id="criteria"
+                        value="60"
+                        min="1"
+                        max="100">
+                </div>
+
+                <div class="input-box">
+                    <label>Lectures Completed</label>
+                    <input
+                        type="number"
+                        id="completed"
+                        value="24"
+                        min="0">
+                </div>
+
+                <div class="input-box">
+                    <label>Lectures Attended</label>
+                    <input
+                        type="number"
+                        id="attended"
+                        value="20"
+                        min="0">
+                </div>
+
+            </div>
+
+            <div class="buttons">
+
+                <button
+                    class="calculate"
+                    onclick="calculateAttendance()">
+                    Calculate Attendance
+                </button>
+
+                <button
+                    class="reset"
+                    onclick="resetAttendance()">
+                    Reset
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- DAILY UPDATE -->
+
+        <div class="card">
+
+            <h2>📅 Daily Lecture Update</h2>
+
+            <p style="color:#64748b;line-height:1.6;">
+                After every lecture, select whether you attended or were
+                absent. The portal will automatically update your attendance.
+            </p>
+
+            <div class="buttons">
+
+                <button
+                    class="present"
+                    onclick="addLecture('present')">
+                    ✓ I Attended
+                </button>
+
+                <button
+                    class="absent"
+                    onclick="addLecture('absent')">
+                    ✕ I Was Absent
+                </button>
+
+            </div>
+
+            <div class="buttons">
+
+                <button
+                    class="undo"
+                    onclick="undoLecture()">
+                    ↩ Undo Last Lecture
+                </button>
+
+                <button
+                    class="undo"
+                    onclick="clearHistory()">
+                    Clear History
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN STATISTICS -->
+
+    <div class="stats">
+
+        <div class="stat">
+            <div class="stat-title">
+                Current Attendance
+            </div>
+
+            <div
+                class="stat-value"
+                id="currentPercentage">
+                0%
+            </div>
+        </div>
+
+
+        <div class="stat">
+            <div class="stat-title">
+                Lectures Attended
+            </div>
+
+            <div
+                class="stat-value"
+                id="attendedDisplay">
+                0 / 0
+            </div>
+        </div>
+
+
+        <div class="stat">
+            <div class="stat-title">
+                Completed Lectures
+            </div>
+
+            <div
+                class="stat-value"
+                id="completedDisplay">
+                0
+            </div>
+        </div>
+
+
+        <div class="stat">
+            <div class="stat-title">
+                Remaining Lectures
+            </div>
+
+            <div
+                class="stat-value"
+                id="remainingDisplay">
+                0
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- PROGRESS -->
+
+    <div class="card progress-card">
+
+        <h2>📈 Attendance Progress</h2>
+
+        <div class="progress-bar">
+            <div
+                class="progress"
+                id="progress">
+            </div>
+        </div>
+
+        <div
+            class="percentage"
+            id="percentageText">
+            0%
+        </div>
+
+        <div
+            class="status"
+            id="status">
+            Enter attendance details.
+        </div>
+
+    </div>
+
+
+    <!-- TARGET ANALYSIS -->
+
+    <div class="card progress-card">
+
+        <h2>🎯 60% Attendance Target</h2>
+
+        <div class="target-grid">
+
+            <div class="target-box">
+
+                <span>
+                    Required Total Attendance
+                </span>
+
+                <strong id="requiredTotal">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="target-box">
+
+                <span>
+                    More Lectures to Attend
+                </span>
+
+                <strong id="needAttend">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="target-box">
+
+                <span>
+                    Lectures You Can Still Miss
+                </span>
+
+                <strong id="canMiss">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="target-box">
+
+                <span>
+                    Maximum Overall Absences
+                </span>
+
+                <strong id="maxAbsence">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="target-box">
+
+                <span>
+                    If You Attend All Remaining
+                </span>
+
+                <strong id="finalPercentage">
+                    0%
+                </strong>
+
+            </div>
+
+
+            <div class="target-box">
+
+                <span>
+                    Attendance Requirement
+                </span>
+
+                <strong id="criteriaDisplay">
+                    60%
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- HISTORY -->
+
+    <div class="card history-card">
+
+        <h2>📝 Daily Attendance History</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>#</th>
+                        <th>Action</th>
+                        <th>Completed</th>
+                        <th>Attended</th>
+                        <th>Attendance</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="historyTable">
+
+                    <tr>
+                        <td
+                            colspan="5"
+                            class="empty">
+                            No daily attendance updates yet.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <footer>
+        Attendance Calculator Portal • Data is stored in your browser
+    </footer>
+
+</div>
+
+
+<script>
+
+    /* =========================================
+       VARIABLES
+    ========================================= */
+
+    let history =
+        JSON.parse(
+            localStorage.getItem("attendanceHistory")
+        ) || [];
+
+
+    /* =========================================
+       CALCULATE ATTENDANCE
+    ========================================= */
+
+    function calculateAttendance() {
+
+        let total =
+            Number(
+                document.getElementById("totalLectures").value
+            );
+
+        let criteria =
+            Number(
+                document.getElementById("criteria").value
+            );
+
+        let completed =
+            Number(
+                document.getElementById("completed").value
+            );
+
+        let attended =
+            Number(
+                document.getElementById("attended").value
+            );
+
+
+        /* VALIDATION */
+
+        if (total < 1) {
+            alert("Total lectures must be at least 1.");
+            return;
+        }
+
+        if (criteria < 1 || criteria > 100) {
+            alert("Attendance criteria must be between 1% and 100%.");
+            return;
+        }
+
+        if (completed > total) {
+            completed = total;
+            document.getElementById("completed").value = total;
+        }
+
+        if (attended > completed) {
+            attended = completed;
+            document.getElementById("attended").value = completed;
+        }
+
+
+        /* CURRENT PERCENTAGE */
+
+        let currentPercentage = 0;
+
+        if (completed > 0) {
+
+            currentPercentage =
+                (attended / completed) * 100;
+
+        }
+
+
+        /* REMAINING */
+
+        let remaining =
+            total - completed;
+
+
+        /* REQUIRED TOTAL */
+
+        let requiredTotal =
+            Math.ceil(
+                total * criteria / 100
+            );
+
+
+        /* LECTURES NEEDED */
+
+        let needAttend =
+            Math.max(
+                0,
+                requiredTotal - attended
+            );
+
+
+        /* MAXIMUM ABSENCE */
+
+        let maxAbsence =
+            total - requiredTotal;
+
+
+        /* HOW MANY CAN MISS */
+
+        let canMiss =
+            Math.max(
+                0,
+                remaining - needAttend
+            );
+
+
+        /* FINAL PERCENTAGE */
+
+        let finalPercentage = 0;
+
+        if (total > 0) {
+
+            finalPercentage =
+                ((attended + remaining) / total) * 100;
+
+        }
+
+
+        /* DISPLAY */
+
+        document.getElementById("currentPercentage")
+            .innerText =
+            currentPercentage.toFixed(2) + "%";
+
+
+        document.getElementById("percentageText")
+            .innerText =
+            currentPercentage.toFixed(2) + "%";
+
+
+        document.getElementById("attendedDisplay")
+            .innerText =
+            attended + " / " + completed;
+
+
+        document.getElementById("completedDisplay")
+            .innerText =
+            completed;
+
+
+        document.getElementById("remainingDisplay")
+            .innerText =
+            remaining;
+
+
+        document.getElementById("requiredTotal")
+            .innerText =
+            requiredTotal;
+
+
+        document.getElementById("needAttend")
+            .innerText =
+            needAttend;
+
+
+        document.getElementById("canMiss")
+            .innerText =
+            canMiss;
+
+
+        document.getElementById("maxAbsence")
+            .innerText =
+            maxAbsence;
+
+
+        document.getElementById("finalPercentage")
+            .innerText =
+            finalPercentage.toFixed(2) + "%";
+
+
+        document.getElementById("criteriaDisplay")
+            .innerText =
+            criteria + "%";
+
+
+        /* PROGRESS BAR */
+
+        document.getElementById("progress")
+            .style.width =
+            Math.min(currentPercentage, 100) + "%";
+
+
+        /* STATUS */
+
+        let status =
+            document.getElementById("status");
+
+
+        if (currentPercentage >= criteria) {
+
+            status.className =
+                "status good";
+
+            status.innerText =
+                "✓ Your attendance is above the required " +
+                criteria +
+                "%.";
+
+        }
+
+        else {
+
+            status.className =
+                "status bad";
+
+            status.innerText =
+                "⚠ Your attendance is below the required " +
+                criteria +
+                "%. You need to attend more lectures.";
+
+        }
+
+
+        /* SAVE DATA */
+
+        localStorage.setItem(
+            "attendanceData",
+            JSON.stringify({
+                total: total,
+                criteria: criteria,
+                completed: completed,
+                attended: attended
+            })
+        );
+
+    }
+
+
+    /* =========================================
+       ADD DAILY LECTURE
+    ========================================= */
+
+    function addLecture(type) {
+
+        let total =
+            Number(
+                document.getElementById("totalLectures").value
+            );
+
+        let completed =
+            Number(
+                document.getElementById("completed").value
+            );
+
+        let attended =
+            Number(
+                document.getElementById("attended").value
+            );
+
+
+        if (completed >= total) {
+
+            alert(
+                "All planned lectures have been completed."
+            );
+
+            return;
+
+        }
+
+
+        /* ADD LECTURE */
+
+        completed++;
+
+
+        if (type === "present") {
+
+            attended++;
+
+        }
+
+
+        /* UPDATE INPUT */
+
+        document.getElementById("completed")
+            .value = completed;
+
+
+        document.getElementById("attended")
+            .value = attended;
+
+
+        /* HISTORY */
+
+        history.push({
+
+            type: type,
+
+            completed: completed,
+
+            attended: attended
+
+        });
+
+
+        localStorage.setItem(
+            "attendanceHistory",
+            JSON.stringify(history)
+        );
+
+
+        calculateAttendance();
+
+        displayHistory();
+
+    }
+
+
+    /* =========================================
+       UNDO
+    ========================================= */
+
+    function undoLecture() {
+
+        if (history.length === 0) {
+
+            alert(
+                "There is no lecture to undo."
+            );
+
+            return;
+
+        }
+
+
+        history.pop();
+
+
+        let initialCompleted = 24;
+        let initialAttended = 20;
+
+
+        let completed =
+            initialCompleted + history.length;
+
+
+        let attended =
+            initialAttended;
+
+
+        history.forEach(function(item) {
+
+            if (item.type === "present") {
+
+                attended++;
+
+            }
+
+        });
+
+
+        document.getElementById("completed")
+            .value = completed;
+
+
+        document.getElementById("attended")
+            .value = attended;
+
+
+        localStorage.setItem(
+            "attendanceHistory",
+            JSON.stringify(history)
+        );
+
+
+        calculateAttendance();
+
+        displayHistory();
+
+    }
+
+
+    /* =========================================
+       DISPLAY HISTORY
+    ========================================= */
+
+    function displayHistory() {
+
+        let table =
+            document.getElementById("historyTable");
+
+
+        if (history.length === 0) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="5" class="empty">
+                        No daily attendance updates yet.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        table.innerHTML = "";
+
+
+        history
+            .slice()
+            .reverse()
+            .forEach(function(item, reverseIndex) {
+
+                let index =
+                    history.length - reverseIndex;
+
+
+                let percentage =
+                    item.completed > 0
+                    ?
+                    (
+                        item.attended /
+                        item.completed *
+                        100
+                    ).toFixed(2)
+                    :
+                    "0.00";
+
+
+                let action =
+                    item.type === "present"
+                    ?
+                    `<span class="present-text">
+                        ✓ Present
+                     </span>`
+                    :
+                    `<span class="absent-text">
+                        ✕ Absent
+                     </span>`;
+
+
+                table.innerHTML += `
+
+                    <tr>
+
+                        <td>
+                            ${index}
+                        </td>
+
+                        <td>
+                            ${action}
+                        </td>
+
+                        <td>
+                            ${item.completed}
+                        </td>
+
+                        <td>
+                            ${item.attended}
+                        </td>
+
+                        <td>
+                            ${percentage}%
+                        </td>
+
+                    </tr>
+
+                `;
+
+            });
+
+    }
+
+
+    /* =========================================
+       CLEAR HISTORY
+    ========================================= */
+
+    function clearHistory() {
+
+        if (
+            !confirm(
+                "Are you sure you want to clear daily history?"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        history = [];
+
+
+        localStorage.removeItem(
+            "attendanceHistory"
+        );
+
+
+        /*
+            Restore default starting values
+        */
+
+        document.getElementById("completed")
+            .value = 24;
+
+
+        document.getElementById("attended")
+            .value = 20;
+
+
+        calculateAttendance();
+
+        displayHistory();
+
+    }
+
+
+    /* =========================================
+       RESET ALL
+    ========================================= */
+
+    function resetAttendance() {
+
+        if (
+            !confirm(
+                "Reset attendance to default values?"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        document.getElementById("totalLectures")
+            .value = 221;
+
+
+        document.getElementById("criteria")
+            .value = 60;
+
+
+        document.getElementById("completed")
+            .value = 24;
+
+
+        document.getElementById("attended")
+            .value = 20;
+
+
+        history = [];
+
+
+        localStorage.removeItem(
+            "attendanceHistory"
+        );
+
+
+        localStorage.removeItem(
+            "attendanceData"
+        );
+
+
+        calculateAttendance();
+
+        displayHistory();
+
+    }
+
+
+    /* =========================================
+       LOAD SAVED DATA
+    ========================================= */
+
+    function loadData() {
+
+        let saved =
+            JSON.parse(
+                localStorage.getItem("attendanceData")
+            );
+
+
+        if (saved) {
+
+            document.getElementById("totalLectures")
+                .value = saved.total;
+
+
+            document.getElementById("criteria")
+                .value = saved.criteria;
+
+
+            document.getElementById("completed")
+                .value = saved.completed;
+
+
+            document.getElementById("attended")
+                .value = saved.attended;
+
+        }
+
+
+        calculateAttendance();
+
+        displayHistory();
+
+    }
+
+
+    /* =========================================
+       START APPLICATION
+    ========================================= */
+
+    loadData();
+
+</script>
+
+</body>
+</html>
